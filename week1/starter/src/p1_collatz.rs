@@ -12,40 +12,49 @@
 ///
 /// Run `cargo test collatz_recursive_test` to check your answer.
 pub fn collatz_recursive(n: usize) -> usize {
-  unimplemented!()
+    if n == 1 {
+        0
+    } else {
+        1 + collatz_recursive(if n % 2 == 0 { n / 2 } else { (3 * n) + 1 })
+    }
 }
 
 /// Problem 1b: write an **ITERATIVE** function that computes the value of i for a given n.
 ///
 /// Run `cargo test collatz_iterative_test` to check your answer.
-pub fn collatz_iterative(n: usize) -> usize {
-  unimplemented!()
+pub fn collatz_iterative(mut n: usize) -> usize {
+    let mut i = 0;
+    while n > 1 {
+        n = if n % 2 == 0 { n / 2 } else { (3 * n) + 1 };
+        i += 1;
+    }
+    i
 }
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  const COLLATZ_ANSWERS: [usize; 10] = [0, 1, 7, 2, 5, 8, 16, 3, 19, 6];
+    use super::*;
+    const COLLATZ_ANSWERS: [usize; 10] = [0, 1, 7, 2, 5, 8, 16, 3, 19, 6];
 
-  #[test]
-  fn collatz_recursive_test() {
-    for (n, answer) in COLLATZ_ANSWERS
-      .into_iter()
-      .enumerate()
-      .map(|(i, a)| (i + 1, a))
-    {
-      assert_eq!(collatz_recursive(n), answer, "n = {}", n);
+    #[test]
+    fn collatz_recursive_test() {
+        for (n, answer) in COLLATZ_ANSWERS
+            .into_iter()
+            .enumerate()
+            .map(|(i, a)| (i + 1, a))
+        {
+            assert_eq!(collatz_recursive(n), answer, "n = {}", n);
+        }
     }
-  }
 
-  #[test]
-  fn collatz_iterative_test() {
-    for (n, answer) in COLLATZ_ANSWERS
-      .into_iter()
-      .enumerate()
-      .map(|(i, a)| (i + 1, a))
-    {
-      assert_eq!(collatz_iterative(n), answer, "n = {}", n);
+    #[test]
+    fn collatz_iterative_test() {
+        for (n, answer) in COLLATZ_ANSWERS
+            .into_iter()
+            .enumerate()
+            .map(|(i, a)| (i + 1, a))
+        {
+            assert_eq!(collatz_iterative(n), answer, "n = {}", n);
+        }
     }
-  }
 }
