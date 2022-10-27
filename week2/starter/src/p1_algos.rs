@@ -37,19 +37,13 @@ type Node = i32;
 pub fn connected(edges: &[(&Node, &Node)], src: &Node, dst: &Node) -> bool {
     let mut visited_nodes: Vec<&Node> = vec![src];
     fn is_visited(visited_nodes: &Vec<&Node>, node: &Node) -> bool {
-        for n in visited_nodes.iter() {
-            if std::ptr::eq(*n, node) {
-                return true;
-            }
-        }
-        return false;
+        visited_nodes.iter().any(|n| std::ptr::eq(*n, node))
     }
-    let mut hopeful = true;
-    while hopeful && !is_visited(&visited_nodes, dst) {
-        hopeful = false;
+    let mut old_size = 0;
+    while old_size != visited_nodes.len() && !is_visited(&visited_nodes, dst) {
+        old_size = visited_nodes.len();
         for (src0, dst0) in edges {
             if is_visited(&visited_nodes, src0) && !is_visited(&visited_nodes, dst0) {
-                hopeful = true;
                 visited_nodes.push(dst0);
             }
         }
