@@ -130,9 +130,9 @@ impl Image {
     /// is the average difference of the pixel versus its neighbors.
     pub fn compute_initial_energy(&self) -> Energies {
         let mut energies = vec![0; self.height * self.width];
+        let mut diffs = vec![0; 9];
         for y in 0..self.height {
             for x in 0..self.width {
-                let mut diffs = vec![0; 9];
                 let mut i = 0;
                 for dy in -1..=1 {
                     for dx in -1..=1 {
