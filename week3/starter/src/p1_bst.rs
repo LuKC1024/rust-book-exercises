@@ -16,9 +16,9 @@
 //!
 //! Node(
 //!   "B",
-//!   Box::new(Node("A", 
+//!   Box::new(Node("A",
 //!     Box::new(Leaf), Box::new(Leaf))),
-//!   Box::new(Node("D", 
+//!   Box::new(Node("D",
 //!     Box::new(Leaf), Box::new(Leaf))));
 
 use std::fmt::{self, Debug, Display};
@@ -38,7 +38,10 @@ impl<T: PartialOrd + Display> BST<T> {
     ///
     /// For this and all other methods, you can test it by running `cargo test <method name>`.
     pub fn len(&self) -> i32 {
-        unimplemented!()
+        match self {
+            BST::Leaf => 0,
+            BST::Node(_t, l, r) => 1 + l.len() + r.len()
+        }
     }
 
     /// P1b: `insert` takes a value of type T, and inserts it into the BST.
@@ -47,13 +50,42 @@ impl<T: PartialOrd + Display> BST<T> {
     /// This method should *NOT* be fancy, i.e. involve rotating or rebalancing
     /// the tree. The reference solution is 7 lines long.
     pub fn insert(&mut self, t: T) {
-        unimplemented!()
+        match self {
+            BST::Leaf => {
+                *self = BST::Node(t, Box::new(BST::Leaf), Box::new(BST::Leaf));
+            }
+            BST::Node(s, l, r) => {
+                if t < *s {
+                    l.insert(t);
+                } else if t == *s {
+                    *s = t;
+                } else {
+                    r.insert(t);
+                }
+            }
+        }
     }
 
     /// P1c: `search` takes a query of type &T, and returns the smallest element
     /// greater than or equal to the query element. If no such element exists, then return None.
     pub fn search(&self, query: &T) -> Option<&T> {
-        unimplemented!()
+        match self {
+            BST::Leaf => {
+                None
+            }
+            BST::Node(s, l, r) => {
+                if *query < *s {
+                    match l.search(query) {
+                        Option::None => Some(&s),
+                        Option::Some(v) => Some(v)
+                    }
+                } else if *query == *s {
+                    Some(&s)
+                } else {
+                    r.search(query)
+                }
+            }
+        }
     }
 
     /// P1d [CHALLENGE PROBLEM, try if you're feeling up to it!]
@@ -77,7 +109,7 @@ impl<T: PartialOrd + Display> BST<T> {
     ///     C                  D
     ///      \
     ///       D
-    ///       
+    ///
     ///      E               D
     ///     / \             / \
     ///    B   F   -->     B   E
@@ -100,7 +132,70 @@ impl<T: PartialOrd + Display> BST<T> {
     ///
     /// You will also want to implement helper functions to perform the search for the new BST root.
     pub fn rebalance(&mut self) {
-        unimplemented!()
+        match self {
+            BST::Leaf => {}
+            BST::Node(t, l, r) => {
+                if l.len() >= r.len() + 2 {
+                    let new_root = l.remove_max().unwrap();
+                    let t = mem::replace(t, new_root);
+                    r.insert(t);
+                    l.rebalance();
+                    r.rebalance();
+                    self.rebalance();
+                } else if l.len() + 2 <= r.len() {
+                    let new_root = r.remove_min().unwrap();
+                    let t = mem::replace(t, new_root);
+                    l.insert(t);
+                    l.rebalance();
+                    r.rebalance();
+                    self.rebalance();
+                }
+            }
+        }
+    }
+
+    fn remove_max(&mut self) -> Option<T> {
+        match self {
+            BST::Leaf => None,
+            BST::Node(_t, l, r) => {
+                match r.remove_max() {
+                    None => {
+                        let l = mem::replace(l, Box::new(BST::Leaf));
+                        match mem::replace(self, *l) {
+                            BST::Leaf => panic!("Impossible"),
+                            BST::Node(t, _l, _r) => {
+                                Some(t)
+                            }
+                        }
+                    },
+                    Some(v) => {
+                        Some(v)
+                    }
+                }
+            }
+        }
+    }
+
+    fn remove_min(&mut self) -> Option<T> {
+        match self {
+            BST::Leaf => None,
+            BST::Node(_t, l, r) => {
+                match l.remove_min() {
+                    None => {
+                        let r = mem::replace(r, Box::new(BST::Leaf));
+                        match mem::replace(self, *r) {
+                            BST::Leaf => panic!("Impossible"),
+                            BST::Node(t, _l, _r) => {
+                                Some(t)
+                            }
+                        }
+                    },
+                    Some(v) => {
+                        Some(v)
+                    }
+                }
+            }
+        }
     }
 
 
