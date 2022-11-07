@@ -40,7 +40,7 @@ impl<T: PartialOrd + Display> BST<T> {
     pub fn len(&self) -> i32 {
         match self {
             BST::Leaf => 0,
-            BST::Node(_t, l, r) => 1 + l.len() + r.len()
+            BST::Node(_t, l, r) => 1 + l.len() + r.len(),
         }
     }
 
@@ -51,18 +51,8 @@ impl<T: PartialOrd + Display> BST<T> {
     /// the tree. The reference solution is 7 lines long.
     pub fn insert(&mut self, t: T) {
         match self {
-            BST::Leaf => {
-                *self = BST::Node(t, Box::new(BST::Leaf), Box::new(BST::Leaf));
-            }
-            BST::Node(s, l, r) => {
-                if t < *s {
-                    l.insert(t);
-                } else if t == *s {
-                    *s = t;
-                } else {
-                    r.insert(t);
-                }
-            }
+            BST::Leaf => *self = BST::Node(t, Box::new(BST::Leaf), Box::new(BST::Leaf)),
+            BST::Node(s, l, r) => (if t <= *s { l } else { r }).insert(t)
         }
     }
 
@@ -70,17 +60,10 @@ impl<T: PartialOrd + Display> BST<T> {
     /// greater than or equal to the query element. If no such element exists, then return None.
     pub fn search(&self, query: &T) -> Option<&T> {
         match self {
-            BST::Leaf => {
-                None
-            }
+            BST::Leaf => None,
             BST::Node(s, l, r) => {
-                if *query < *s {
-                    match l.search(query) {
-                        Option::None => Some(&s),
-                        Option::Some(v) => Some(v)
-                    }
-                } else if *query == *s {
-                    Some(&s)
+                if *query <= *s {
+                    l.search(query).or(Some(&s))
                 } else {
                     r.search(query)
                 }
@@ -139,16 +122,10 @@ impl<T: PartialOrd + Display> BST<T> {
                     let new_root = l.remove_max().unwrap();
                     let t = mem::replace(t, new_root);
                     r.insert(t);
-                    l.rebalance();
-                    r.rebalance();
-                    self.rebalance();
                 } else if l.len() + 2 <= r.len() {
                     let new_root = r.remove_min().unwrap();
                     let t = mem::replace(t, new_root);
                     l.insert(t);
-                    l.rebalance();
-                    r.rebalance();
-                    self.rebalance();
                 }
             }
         }
@@ -157,47 +134,34 @@ impl<T: PartialOrd + Display> BST<T> {
     fn remove_max(&mut self) -> Option<T> {
         match self {
             BST::Leaf => None,
-            BST::Node(_t, l, r) => {
-                match r.remove_max() {
-                    None => {
-                        let l = mem::replace(l, Box::new(BST::Leaf));
-                        match mem::replace(self, *l) {
-                            BST::Leaf => panic!("Impossible"),
-                            BST::Node(t, _l, _r) => {
-                                Some(t)
-                            }
-                        }
-                    },
-                    Some(v) => {
-                        Some(v)
+            BST::Node(_t, l, r) => match r.remove_max() {
+                None => {
+                    let l = mem::replace(l, Box::new(BST::Leaf));
+                    match mem::replace(self, *l) {
+                        BST::Leaf => unreachable!(),
+                        BST::Node(t, _l, _r) => Some(t),
                     }
                 }
-            }
+                Some(v) => Some(v),
+            },
         }
     }
 
     fn remove_min(&mut self) -> Option<T> {
         match self {
             BST::Leaf => None,
-            BST::Node(_t, l, r) => {
-                match l.remove_min() {
-                    None => {
-                        let r = mem::replace(r, Box::new(BST::Leaf));
-                        match mem::replace(self, *r) {
-                            BST::Leaf => panic!("Impossible"),
-                            BST::Node(t, _l, _r) => {
-                                Some(t)
-                            }
-                        }
-                    },
-                    Some(v) => {
-                        Some(v)
+            BST::Node(_t, l, r) => match l.remove_min() {
+                None => {
+                    let r = mem::replace(r, Box::new(BST::Leaf));
+                    match mem::replace(self, *r) {
+                        BST::Leaf => unreachable!(),
+                        BST::Node(t, _l, _r) => Some(t),
                     }
                 }
-            }
+                Some(v) => Some(v),
+            },
         }
     }
-
 
     /// Provided helper function that gives a nice visual representation of a BST.
     /// You can print any BST by doing `println!("{tree:?}")`.
