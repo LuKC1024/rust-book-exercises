@@ -29,21 +29,35 @@
 //! To get you started, I would read Rust's documentation on how to implement an iterator:
 //! https://doc.rust-lang.org/std/iter/index.html#implementing-iterator
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use maplit::hashset;
-    use std::collections::HashSet;
-
-    #[test]
-    fn cartesian_product_test() {
-        let h1 = hashset![1, 2];
-        let h2 = hashset![3, 4];
-        let iter1 = h1.into_iter();
-        // let product = h1.into_iter().cartesian_product(h2.into_iter());
-        // assert_eq!(
-        //     product.collect::<HashSet<_>>(),
-        //     hashset![(1, 3), (1, 4), (2, 3), (2, 4)]
-        // )
+pub trait CartesianProduct {
+    fn cartesian_product<Them: Iterator>(self, them: Them) -> dyn Iterator<Item = (Self::Item, Them::Item)>
+    where
+        Self: Iterator;
+}
+impl<T: Iterator> CartesianProduct for T {
+    fn cartesian_product<Them: Iterator>(self, them: Them) -> dyn Iterator<Item = (Self::Item, Them::Item)>
+    where
+        Self: Iterator
+    {
+        unimplemented!();
     }
 }
+
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     use maplit::hashset;
+//     use std::collections::HashSet;
+
+//     #[test]
+//     fn cartesian_product_test() {
+//         let h1 = hashset![1, 2];
+//         let h2 = hashset![3, 4];
+//         let iter1 = h1.into_iter();
+//         let product = h1.into_iter().cartesian_product(h2.into_iter());
+//         assert_eq!(
+//             product.collect::<HashSet<_>>(),
+//             hashset![(1, 3), (1, 4), (2, 3), (2, 4)]
+//         )
+//     }
+// }
