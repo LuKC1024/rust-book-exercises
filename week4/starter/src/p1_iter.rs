@@ -29,35 +29,56 @@
 //! To get you started, I would read Rust's documentation on how to implement an iterator:
 //! https://doc.rust-lang.org/std/iter/index.html#implementing-iterator
 
-pub trait CartesianProduct {
-    fn cartesian_product<Them: Iterator>(self, them: Them) -> dyn Iterator<Item = (Self::Item, Them::Item)>
-    where
-        Self: Iterator;
+pub struct CPIter<A, B> {
+    xs: Vec<A>,
+    ys: Vec<B>,
+    n: usize
 }
-impl<T: Iterator> CartesianProduct for T {
-    fn cartesian_product<Them: Iterator>(self, them: Them) -> dyn Iterator<Item = (Self::Item, Them::Item)>
-    where
-        Self: Iterator
-    {
-        unimplemented!();
+impl<A : Clone, B: Clone> Iterator for CPIter<A, B> {
+    type Item = (A, B);
+    fn next(&mut self) -> Option<(A, B)> {
+        if self.n < self.xs.len() * self.ys.len() {
+            let i = self.n / self.ys.len();
+            let j = self.n % self.ys.len();
+            self.n += 1;
+            Some((self.xs[i].clone(), self.ys[j].clone()))
+        } else {
+            None
+        }
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use super::*;
-//     use maplit::hashset;
-//     use std::collections::HashSet;
+pub trait CartesianProduct: Iterator {
+    fn cartesian_product<Them: Iterator>(self, them: Them) -> CPIter<Self::Item, Them::Item> where
+        Self::Item : Clone,
+        Them::Item : Clone;
+}
+impl<T: Iterator> CartesianProduct for T {
+    fn cartesian_product<Them: Iterator>(self, them: Them) -> CPIter<Self::Item, Them::Item> where
+    Self::Item : Clone,
+    Them::Item : Clone {
+        CPIter {
+            xs: self.collect(),
+            ys: them.collect(),
+            n: 0
+        }
+    }
+}
 
-//     #[test]
-//     fn cartesian_product_test() {
-//         let h1 = hashset![1, 2];
-//         let h2 = hashset![3, 4];
-//         let iter1 = h1.into_iter();
-//         let product = h1.into_iter().cartesian_product(h2.into_iter());
-//         assert_eq!(
-//             product.collect::<HashSet<_>>(),
-//             hashset![(1, 3), (1, 4), (2, 3), (2, 4)]
-//         )
-//     }
-// }
+#[cfg(test)]
+mod test {
+    use super::*;
+    use maplit::hashset;
+    use std::collections::HashSet;
+
+    #[test]
+    fn cartesian_product_test() {
+        let h1 = hashset![1, 2];
+        let h2 = hashset![3, 4];
+        let product = h1.into_iter().cartesian_product(h2.into_iter());
+        assert_eq!(
+            product.collect::<HashSet<_>>(),
+            hashset![(1, 3), (1, 4), (2, 3), (2, 4)]
+        )
+    }
+}
