@@ -15,6 +15,13 @@
 //! Your task is to redesign the C++ TUI API into Rust. Your API should similarly
 //! contain data structures that represent Text, Heading, and Container. You should
 //! replicate the behavior of `main` in `tui.cpp` into the `container_test` function.
+//!
+//! Note: Cargo's test harness silences printing by default. You can prevent that
+//! behavior by running:
+//!
+//! ```bash
+//! cargo test container -- --nocapture
+//! ```
 
 struct Dimensions {
     width: usize,

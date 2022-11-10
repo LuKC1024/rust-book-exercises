@@ -255,18 +255,3 @@ impl Image {
         img.save(path)
     }
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn img_test() {
-        let mut img = Image::load("input.jpg").unwrap();
-
-        for _ in 0..50 {
-            img = img.carve();
-        }
-
-        img.save("output.jpg").unwrap();
-    }
-}
