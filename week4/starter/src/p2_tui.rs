@@ -90,7 +90,7 @@ impl Container {
         let dims = self.dimensions();
         print!("+");
         print!("{}", "-".repeat(dims.width - 2));
-        print!("+")
+        println!("+")
     }
 }
 impl Element for Container {
@@ -124,6 +124,7 @@ mod test {
         let text = Heading::new(String::from("Hello world!"));
         let text2 = Text::new(String::from("This is a long string of text"));
         let container = Container::new(vec![Box::new(text), Box::new(text2)]);
-        container.render()
+        let container2 = Container::new(vec![Box::new(container)]);
+        container2.render()
     }
 }
