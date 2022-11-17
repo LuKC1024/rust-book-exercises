@@ -19,20 +19,28 @@
 //! define the type signature and implementation of each function.
 //!
 //! To simplify your implementation, you get to assume `T: Copy`. Note that to make using `Context`
-//! thread-safe, if you need to use interior mutability, you should use a 
+//! thread-safe, if you need to use interior mutability, you should use a
 //! [`Mutex`](https://doc.rust-lang.org/std/sync/struct.Mutex.html) instead of a `RefCell`.
 
 
 pub struct Context<T> {
-    values: () // TODO
+    values: Option<T>
 }
 
 impl<T: Copy> Context<T> {
-    pub fn new() {} // TODO
+    pub fn new() -> Context<T> {
+        Context {
+            values: None
+        }
+    }
 
-    pub fn set() {} // TODO
+    pub fn set(&mut self, v: T) {
+        self.values = Some(v);
+    }
 
-    pub fn get() {} // TODO
+    pub fn get(&self) -> Option<T> {
+        self.values
+    }
 }
 
 
